@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
-class RegisterView(generics.CreateAPIView):
+class RegisterAPIView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):

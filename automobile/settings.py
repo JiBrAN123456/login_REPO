@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django_tenants',
+    #'django_tenants',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "login", 
     ]
    
-
+'''
 TENANT_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
@@ -52,13 +52,13 @@ TENANT_APPS = [
     'django.contrib.staticfiles',
     'login',  # your app with tenant-specific models
     # Add any other apps that should be specific to tenants here
-]    
+]  '''  
     
 
 
 
 MIDDLEWARE = [
-    'django_tenants.middleware.TenantMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -159,6 +159,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME':timedelta(days=1),
 }
 
-DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
+#DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
 
-TENANT_MODEL = "login.Company"  # Or whichever model represents tenants in your app
+#TENANT_MODEL = "login.Company"  # Or whichever model represents tenants in your app
