@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,17 +31,19 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
-    #'django_tenants',
+SHARED_APPS = [
+    'django_tenants',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
     "login", 
+    "simple_history",
     ]
    
 '''
@@ -58,6 +61,7 @@ TENANT_APPS = [
 
 
 MIDDLEWARE = [
+    "django_tenants.middleware.main.TenantMainMiddleware", 
     'django.middleware.csrf.CsrfViewMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -94,11 +98,14 @@ WSGI_APPLICATION = "automobile.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django_tenants.postgresql_backend",  # Tenant-aware PostgreSQL backend
+        "NAME": "Automobile",
+        "USER": "yunis",
+        "PASSWORD": "yunis",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -152,6 +159,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 SIMPLE_JWT = {
@@ -161,4 +172,23 @@ SIMPLE_JWT = {
 
 #DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
 
-#TENANT_MODEL = "login.Company"  # Or whichever model represents tenants in your app
+TENANT_MODEL = "login.Company"  # Or whichever model represents tenants in your app
+TENANT_DOMAIN_MODEL = "login.Domain"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10  # Show 10 vehicles per page
+}
+
+
+TENANT_APPS = [
+    'inventory',  # Inventory models (Tenant-specific)
+]
+
+INSTALLED_APPS = SHARED_APPS + TENANT_APPS
+
+DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
