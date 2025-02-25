@@ -1,71 +1,46 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-from .models import Document, Vehicle , InventoryStatus
-from .serializers import DocumentSerializer,VehicleSerializer, InventoryStatusSerializer
-from rest_framework.permissions import IsAuthenticated ,  IsAuthenticatedOrReadOnly
+from rest_framework import viewsets, permissions
+from .models import Vehicle, InventoryStatus, Document, VehicleImage
+from .serializers import VehicleSerializer, InventoryStatusSerializer, DocumentSerializer, VehicleImageSerializer
+from login.models import Company
 from rest_framework.response import Response
-from django.db.models import Q
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.filters import OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-
-# Create your views here.
-
-class DocumentViewSet(viewsets.ModelViewSet):
-  
-    serializer_class = DocumentSerializer
-    authentication_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        
-        queryset = Document.objects.select_related('vehicle')
-        vehicle_id = self.request.query_params.get('vehicle')
-        if vehicle_id:
-            queryset = queryset.filter(vehicle_id=vehicle_id)
-        return queryset    
-    
-
-class InventoryViewSet(viewsets.ModelViewSet):
-
-    serializer_class = InventoryStatusSerializer
-    queryset =  InventoryStatus.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-
-class VehiclePagination(PageNumberPagination):
-    page_size = 10  # Number of vehicles per page
-    page_size_query_param = 'page_size'  # Allow changing page size in URL
-    max_page_size = 100  # Prevent loading too many records at once
-
-
-
 
 class VehicleViewSet(viewsets.ModelViewSet):
-     
-    queryset = Vehicle.objects.all()
+    """
+    ✅ Vehicle API (Multi-Tenant)
+    - Users can only access vehicles from their company
+    - Admins can manage all vehicles
+    """
     serializer_class = VehicleSerializer
-    pagination_class = VehiclePagination    
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    ordering_fields = ['price','year']
-    ordering = ['-year']
-
-
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Vehicle.objects.all()
-        status = self.request.query_params.get('status')
-        if status:
-            queryset = queryset.filter(status=status)
-        return queryset
-    
-    def perform_update(self, serializer):
-        
-        instance = serializer.save()
+        """✅ Filter vehicles by company"""
+        user = self.request.user
+        return Vehicle.objects.filter(company=user.company, is_deleted=False)
 
+    def perform_create(self, serializer):
+        """✅ Auto-assign vehicle to logged-in user's company"""
+        serializer.save(created_by=self.request.user, company=self.request.user.company)
 
-        if not Vehicle.objects.filter(status="available").exists():
-            Inventory_status, _ = Inventory_status.objects.get_or_create(status='sold_out')
-        else:
-            inventory_status, _ = InventoryStatus.objects.get_or_create(status="available")
+class InventoryStatusViewSet(viewsets.ModelViewSet):
+    serializer_class = InventoryStatusSerializer
+    queryset = InventoryStatus.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
-        inventory_status.save()    
+class DocumentViewSet(viewsets.ModelViewSet):
+    serializer_class = DocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """✅ Filter documents by company"""
+        user = self.request.user
+        return Document.objects.filter(vehicle__company=user.company)
+
+class VehicleImageViewSet(viewsets.ModelViewSet):
+    serializer_class = VehicleImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """✅ Filter images by company"""
+        user = self.request.user
+        return VehicleImage.objects.filter(vehicle__company=user.company)
