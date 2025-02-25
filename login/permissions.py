@@ -1,16 +1,20 @@
-# users/permissions.py
-
 from rest_framework.permissions import BasePermission
 
-class RolePermission(BasePermission):
-    def has_permission(self, request, view):
-        user = request.user
-        if not user.is_authenticated:
-            return False
+class HasPermission(BasePermission):
+    """
+    Custom permission class to check if the user has the required permission.
+    """
 
-        if hasattr(user, 'profile') and user.profile.role:
-            role = user.profile.role
-            # Checking if the role has the necessary permission for the view
-            if role.permissions.get(f'can_access_{view.__class__.__name__}', False):
-                return True
-        return False
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False  # User must be logged in
+
+        if not hasattr(request.user, 'profile'):
+            return False  # Ensure user has a profile
+
+        required_permission = getattr(view, "required_permission", None)
+        if required_permission:
+            module, action = required_permission.split(".")
+            return request.user.profile.has_permission(module, action)
+
+        return True
