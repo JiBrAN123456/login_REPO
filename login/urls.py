@@ -7,7 +7,8 @@ from .views import (
     MenuListCreateView,
     RoleMenuPermissionsListCreateView,
     debug_view,
-    health_check
+    health_check,
+    debug_tenant
 )
 
 urlpatterns = [
@@ -35,4 +36,6 @@ urlpatterns = [
     path('permissions/', RoleMenuPermissionsListCreateView.as_view(), name='permissions-list'),
 
     path('health/', health_check, name='health-check'),
+
+    path('tenant-debug/', debug_tenant, name='tenant-debug'),
 ]

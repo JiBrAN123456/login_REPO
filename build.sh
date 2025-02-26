@@ -12,7 +12,7 @@ echo "Running migrations for shared apps..."
 python manage.py migrate_schemas --shared
 
 echo "Initializing public tenant..."
-python manage.py init_public_tenant
+RENDER_EXTERNAL_HOSTNAME="${RENDER_EXTERNAL_HOSTNAME:-localhost}" python manage.py init_public_tenant
 
 echo "Running migrations for all schemas..."
 python manage.py migrate_schemas
@@ -20,11 +20,16 @@ python manage.py migrate_schemas
 echo "Creating superuser..."
 python manage.py shell << END
 from login.models import Company, Domain, User
-if not User.objects.filter(email='admin@example.com').exists():
+try:
     company = Company.objects.get(schema_name='public')
-    User.objects.create_superuser(
-        email='admin@example.com',
-        password='Admin@123',
-        company=company
-    )
+    if not User.objects.filter(email='admin@example.com').exists():
+        User.objects.create_superuser(
+            email='admin@example.com',
+            password='Admin@123',
+            company=company,
+            username='admin'
+        )
+        print("Superuser created successfully")
+except Exception as e:
+    print(f"Error creating superuser: {str(e)}")
 END 

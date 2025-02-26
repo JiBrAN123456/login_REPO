@@ -8,7 +8,17 @@ from django.core.exceptions import ValidationError
 
 # 🚀 Domain Model (for Subdomains)
 class Domain(DomainMixin):
-    pass
+    def __str__(self):
+        return self.domain
+    
+    @classmethod
+    def create_public_domain(cls, tenant, hostname):
+        domain = cls()
+        domain.domain = hostname
+        domain.tenant = tenant
+        domain.is_primary = True
+        domain.save()
+        return domain
 
 # 🚀 Multi-Tenant Company Model
 class Company(TenantMixin):

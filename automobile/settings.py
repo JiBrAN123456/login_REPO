@@ -71,7 +71,10 @@ WSGI_APPLICATION = "automobile.wsgi.application"
 
 DATABASES = {
     "default": {
-        **dj_database_url.config(default=os.getenv("DATABASE_URL")),
+        **dj_database_url.config(
+            default=os.getenv("DATABASE_URL"),
+            conn_max_age=600
+        ),
         "ENGINE": "django_tenants.postgresql_backend",
     }
 }
@@ -126,3 +129,6 @@ if not DEBUG:
 
 # Add/update these settings
 TENANT_LIMIT_SET_CALLS = True
+TENANT_SUBFOLDER_PREFIX = None  # This allows direct domain routing
+PUBLIC_SCHEMA_NAME = 'public'
+TENANT_CREATION_FAKES_MIGRATIONS = True

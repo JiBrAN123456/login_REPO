@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from login.models import Company, Domain
+import os
 
 class Command(BaseCommand):
     help = 'Initialize the public tenant and domain'
@@ -17,17 +18,21 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(self.style.SUCCESS(f'Created public tenant: {company.name}'))
             
-            # Create a domain for the tenant
-            domain, domain_created = Domain.objects.get_or_create(
-                domain='localhost',  # Change this to your actual domain in production
-                defaults={
-                    'tenant': company,
-                    'is_primary': True
-                }
-            )
+            # Get the hostname from environment or use default
+            hostname = os.getenv('RENDER_EXTERNAL_HOSTNAME', 'localhost')
             
-            if domain_created:
-                self.stdout.write(self.style.SUCCESS(f'Created domain: {domain.domain}'))
+            # Create domains for both localhost and render.com
+            domains = ['localhost', hostname]
+            for domain_name in domains:
+                domain, domain_created = Domain.objects.get_or_create(
+                    domain=domain_name,
+                    defaults={
+                        'tenant': company,
+                        'is_primary': domain_name == hostname
+                    }
+                )
+                if domain_created:
+                    self.stdout.write(self.style.SUCCESS(f'Created domain: {domain.domain}'))
             
             self.stdout.write(self.style.SUCCESS('Public tenant initialization complete!'))
             

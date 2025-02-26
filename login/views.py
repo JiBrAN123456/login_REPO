@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions
-from .models import User, Company , Role ,Menu ,RoleMenuPermissions
+from .models import User, Company , Role ,Menu ,RoleMenuPermissions, Domain
 from .serializers import UserSerializer ,CompanySerializer , RoleMenuPermissionsSerializer ,RoleSerializer ,MenuSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -10,7 +10,7 @@ from rest_framework.permissions import BasePermission
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from django_tenants.utils import get_tenant
+from django_tenants.utils import get_tenant, get_public_schema_name
 
 class HasPermission(BasePermission):
     """
@@ -111,4 +111,16 @@ def health_check(request):
         'status': 'healthy',
         'tenant': tenant.schema_name,
         'domain': request.get_host()
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def debug_tenant(request):
+    tenant = get_tenant(request)
+    return Response({
+        'current_tenant': tenant.schema_name,
+        'public_schema': get_public_schema_name(),
+        'domain': request.get_host(),
+        'is_public': tenant.schema_name == get_public_schema_name(),
+        'available_domains': list(Domain.objects.values_list('domain', flat=True)),
     })
