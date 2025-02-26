@@ -6,7 +6,8 @@ from .views import (
     RoleListCreateView, RoleDetailView,
     MenuListCreateView,
     RoleMenuPermissionsListCreateView,
-    debug_view
+    debug_view,
+    health_check
 )
 
 urlpatterns = [
@@ -32,4 +33,6 @@ urlpatterns = [
 
     # Role Menu Permissions Routes
     path('permissions/', RoleMenuPermissionsListCreateView.as_view(), name='permissions-list'),
+
+    path('health/', health_check, name='health-check'),
 ]

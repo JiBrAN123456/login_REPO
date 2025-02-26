@@ -8,6 +8,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import BasePermission
 from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django_tenants.utils import get_tenant
 
 class HasPermission(BasePermission):
     """
@@ -98,4 +101,14 @@ def debug_view(request):
         'message': 'Debug endpoint working',
         'path': request.path,
         'method': request.method
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    tenant = get_tenant(request)
+    return Response({
+        'status': 'healthy',
+        'tenant': tenant.schema_name,
+        'domain': request.get_host()
     })

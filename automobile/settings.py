@@ -38,7 +38,7 @@ TENANT_APPS = ["inventory"]
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS
 
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware',  # Make sure this is first
+    'django_tenants.middleware.main.TenantMainMiddleware',  # Must be first
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -48,8 +48,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'automobile.urls'  # Make sure this points to the correct urls.py
-PUBLIC_SCHEMA_URLCONF = 'automobile.public_urls'
+ROOT_URLCONF = 'automobile.tenant_urls'  # Default URLs for tenants
+PUBLIC_SCHEMA_URLCONF = 'automobile.public_urls'  # URLs for public schema
 
 TEMPLATES = [
     {
@@ -123,3 +123,6 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Add/update these settings
+TENANT_LIMIT_SET_CALLS = True
