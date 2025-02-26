@@ -63,20 +63,17 @@ TEMPLATES = [
 WSGI_APPLICATION = "automobile.wsgi.application"
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL"),
-        conn_max_age=600,
-    )
+    "default": {
+        **dj_database_url.config(default=os.getenv("DATABASE_URL")),
+        "ENGINE": "django_tenants.postgresql_backend",
+    }
 }
 
-DATABASES["default"].update({
-    "ENGINE": "django_tenants.postgresql_backend",
-    "OPTIONS": {"options": "-c search_path=public"},
-})
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
 
 SECRET_KEY = os.getenv("SECRET_KEY")  # ✅ Use a secure environment variable
-
-DATABASE_ROUTERS = ["django_tenants.routers.TenantSyncRouter"]
 
 AUTH_USER_MODEL = "login.User"
 
