@@ -7,6 +7,8 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
+DEBUG = True
+
 ALLOWED_HOSTS = ['*']  # For development
 if not DEBUG:
     ALLOWED_HOSTS = [
@@ -15,8 +17,6 @@ if not DEBUG:
         os.getenv('RENDER_EXTERNAL_HOSTNAME', ''),
         os.getenv('Frontend_URL', ''),
     ]
-
-DEBUG = True
 
 SHARED_APPS = [
     "django_tenants",
@@ -113,3 +113,13 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# For production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
