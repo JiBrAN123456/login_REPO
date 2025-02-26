@@ -15,7 +15,7 @@ class Company(TenantMixin):
     id = models.BigAutoField(primary_key=True)
     company_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(max_length=255, unique=True)
-    schema_name = models.CharField(max_length=100, unique=True, default="public")
+    schema_name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     address = models.TextField(default="Not Provided")
     is_active = models.BooleanField(default=True)
@@ -65,10 +65,13 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-        return self.create_user(email, password, **extra_fields)
+       extra_fields.setdefault("is_staff", True)
+       extra_fields.setdefault("is_superuser", True)
 
+       if "username" not in extra_fields or not extra_fields["username"]:
+           extra_fields["username"] = email.split("@")[0]  # Use email prefix as username
+
+       return self.create_user(email, password, **extra_fields)
 
 # 🚀 Multi-Tenant User Model
 class User(AbstractBaseUser, PermissionsMixin):
@@ -76,11 +79,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     user_guid = models.UUIDField(default=uuid.uuid4, unique=True,editable=False)
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(unique=True)
-    mobile_number = models.CharField(unique=True)
+    mobile_number = models.CharField(unique=True, max_length= 15, blank= True, null = True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL,null=True, blank=True, related_name="users")
-    role = models.ForeignKey('Role',on_delete=models.SET_NULL, null=True)
     last_login = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -159,7 +161,7 @@ class Profile(models.Model):
             return False  # User must have a role to check permissions
 
         try:
-            role_permission = RoleMenuPermissions.objects.get(role=self.role, menu__menu_name=module)
+            role_permission = RoleMenuPermissions.objects.filter().first(role=self.role, menu__menu_name=module)
             return getattr(role_permission, f"can_{action}", False)  # Check if action is allowed
         except RoleMenuPermissions.DoesNotExist:
             return False  # No permissions found, deny access

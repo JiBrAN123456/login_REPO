@@ -9,6 +9,8 @@ load_dotenv()
 
 ALLOWED_HOSTS = [os.getenv("Frontend_URL", "*")]
 
+DEBUG = True
+
 SHARED_APPS = [
     "django_tenants",
     "django.contrib.admin",
