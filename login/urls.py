@@ -14,10 +14,10 @@ urlpatterns = [
     path('debug/', debug_view, name='debug'),
 
     # Authentication Routes
-    path('auth/register/', RegisterUserView.as_view(), name='register'),
-    path('auth/login/', LoginView.as_view(), name='login'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('auth/profile/', ProfileView.as_view(), name='profile'),
+    path('register/', RegisterUserView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('profile/', ProfileView.as_view(), name='profile'),
 
     # Company Management Routes
     path('companies/', CompanyListCreateView.as_view(), name='company-list'),

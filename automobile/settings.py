@@ -7,7 +7,14 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-ALLOWED_HOSTS = ['*']  # For development. Configure properly for production
+ALLOWED_HOSTS = ['*']  # For development
+if not DEBUG:
+    ALLOWED_HOSTS = [
+        'localhost',
+        '.render.com',
+        os.getenv('RENDER_EXTERNAL_HOSTNAME', ''),
+        os.getenv('Frontend_URL', ''),
+    ]
 
 DEBUG = True
 
