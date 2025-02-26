@@ -7,7 +7,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-ALLOWED_HOSTS = [os.getenv("Frontend_URL", "*")]
+ALLOWED_HOSTS = ['*']  # For development. Configure properly for production
 
 DEBUG = True
 
@@ -31,7 +31,7 @@ TENANT_APPS = ["inventory"]
 INSTALLED_APPS = SHARED_APPS + TENANT_APPS
 
 MIDDLEWARE = [
-    "django_tenants.middleware.main.TenantMainMiddleware",
+    'django_tenants.middleware.main.TenantMainMiddleware',  # Make sure this is first
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -41,8 +41,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "automobile.urls"
-PUBLIC_SCHEMA_URLCONF = "automobile.public_urls"
+ROOT_URLCONF = 'automobile.urls'  # Make sure this points to the correct urls.py
+PUBLIC_SCHEMA_URLCONF = 'automobile.public_urls'
 
 TEMPLATES = [
     {
