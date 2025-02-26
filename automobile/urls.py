@@ -6,5 +6,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # Include the user-related URLs
-    path('api/', include('login.urls')),  # Note the prefix '/api/'
+    path('api/', include('login.urls')),  # This maps /api/ to your login app URLs
 ]

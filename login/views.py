@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import BasePermission
+from django.http import JsonResponse
 
 class HasPermission(BasePermission):
     """
@@ -91,3 +92,10 @@ class RoleMenuPermissionsListCreateView(generics.ListCreateAPIView):
     serializer_class = RoleMenuPermissionsSerializer
     permission_classes = [IsAuthenticated, HasPermission]
     required_permission = "permissions.manage"
+
+def debug_view(request):
+    return JsonResponse({
+        'message': 'Debug endpoint working',
+        'path': request.path,
+        'method': request.method
+    })

@@ -5,10 +5,14 @@ from .views import (
     CompanyListCreateView, CompanyDetailView,
     RoleListCreateView, RoleDetailView,
     MenuListCreateView,
-    RoleMenuPermissionsListCreateView
+    RoleMenuPermissionsListCreateView,
+    debug_view
 )
 
 urlpatterns = [
+    # Debug Route
+    path('debug/', debug_view, name='debug'),
+
     # Authentication Routes
     path('auth/register/', RegisterUserView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
