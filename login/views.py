@@ -14,7 +14,7 @@ class HasPermission(BasePermission):
     """
 
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated  or not hasattr(request.user, "profile"):
             return False
 
         profile = request.user.profile  # Ensure user has a profile
@@ -38,7 +38,7 @@ class RegisterUserView(generics.CreateAPIView):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['role'] = self.user.role.role_name if self.user.role else None
+        data['role'] = self.user.profile.role.name if self.user.profile and self.user.profile.role else None
         data['company'] = self.user.company.name if self.user.company else None
         return data
 
@@ -89,6 +89,5 @@ class MenuListCreateView(generics.ListCreateAPIView):
 class RoleMenuPermissionsListCreateView(generics.ListCreateAPIView):
     queryset = RoleMenuPermissions.objects.all()
     serializer_class = RoleMenuPermissionsSerializer
-    ermission_classes = [permissions.IsAuthenticated]
     permission_classes = [IsAuthenticated, HasPermission]
     required_permission = "permissions.manage"
